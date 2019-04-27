@@ -19,12 +19,15 @@ else {
     console.log(env.parsed);
 }
 var server = express_1.default();
+exports.MAILER_TIMEOUT = 60 * 60 * 1000;
 exports.PORT = parseInt(process.env.PORT) || 3000;
 exports.REPO_DIR = process.env.REPO_DIR || "dist/static";
 exports.REPO_NAME = process.env.REPO_NAME || "portfolio";
+setInterval(mailer_1.resetIps, exports.MAILER_TIMEOUT);
 server.use(bodyparser_1.bodyparser);
 server.use(middleware_1.middleware);
 server.use("/api/mailer", mailer_1.mailer);
+server.use("/api", express_1.default.static(exports.REPO_DIR + "/" + exports.REPO_NAME));
 server.use(express_1.default.static(exports.REPO_DIR + "/" + exports.REPO_NAME));
 server.use(notFound_1.notFound);
 updater_1.update(exports.REPO_DIR, exports.REPO_NAME);

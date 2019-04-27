@@ -41,30 +41,40 @@ var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 var nodemailer_1 = __importDefault(require("nodemailer"));
+var recentIps = {};
 function mailer(req, res, next) {
     return __awaiter(this, void 0, void 0, function () {
         var e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(req.method.toUpperCase() == "POST")) return [3 /*break*/, 4];
-                    if (!(req.body.hasOwnProperty("name")
-                        && req.body.hasOwnProperty("email")
-                        && req.body.hasOwnProperty("message"))) return [3 /*break*/, 4];
+                    if (!(req.method.toUpperCase() == "POST")) return [3 /*break*/, 6];
+                    if (recentIps[req.ip] == undefined) {
+                        recentIps[req.ip] = 0;
+                    }
+                    if (!(recentIps[req.ip] < 2)) return [3 /*break*/, 5];
+                    if (!(req.body.hasOwnProperty("name") &&
+                        req.body.hasOwnProperty("email") &&
+                        req.body.hasOwnProperty("message"))) return [3 /*break*/, 4];
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 3, , 4]);
                     return [4 /*yield*/, sendMail(req.body)];
                 case 2:
                     _a.sent();
-                    res.status(200).sendFile(path_1.resolve(process.cwd(), "dist/static/pages/mail_success.html"));
+                    recentIps[req.ip] += 1;
+                    res.location("/").status(200).sendFile(path_1.resolve(process.cwd(), "dist/static/pages/mail_success.html"));
                     return [3 /*break*/, 4];
                 case 3:
                     e_1 = _a.sent();
                     console.log(e_1);
-                    res.status(400).sendFile(path_1.resolve(process.cwd(), "dist/static/pages/mail_error.html"));
+                    res.location("/").status(400).sendFile(path_1.resolve(process.cwd(), "dist/static/pages/mail_error.html"));
                     return [3 /*break*/, 4];
-                case 4:
+                case 4: return [3 /*break*/, 6];
+                case 5:
+                    res.status(429).sendFile(path_1.resolve(process.cwd(), "dist/static/pages/mail_429.html"));
+                    _a.label = 6;
+                case 6:
                     next();
                     return [2 /*return*/];
             }
@@ -72,8 +82,12 @@ function mailer(req, res, next) {
     });
 }
 exports.mailer = mailer;
+function resetIps() {
+    recentIps = {};
+}
+exports.resetIps = resetIps;
 var sendMail = function (body) { return __awaiter(_this, void 0, void 0, function () {
-    var username, password, mailto, transporter, info;
+    var username, password, mailto, transporter, msg;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -97,12 +111,12 @@ var sendMail = function (body) { return __awaiter(_this, void 0, void 0, functio
                         html: htmlTemplate(body),
                     })];
             case 1:
-                info = _a.sent();
-                console.log("Message sent: %s", info.messageId);
+                msg = _a.sent();
+                console.log("Message sent: %s", msg.messageId);
                 return [2 /*return*/];
         }
     });
 }); };
 function htmlTemplate(body) {
-    return "<!doctype html>\n\t<html lang=\"en\">\n\t<head>\n    <style>\n        body, html {\n            margin: 0;\n            padding: 0;\n            font-family: Helvetica, sans-serif;\n\t\t\twidth: 500px;\n        }\n        .body {\n            margin: 10px;\n            padding: 10px;\n            background-color: #f5f5f5f5;\n            border: 2px solid #aaaaaa;\n            border-radius: 7px;\n        }\n        .body p {\n            width: 500px;\n        }\n        .body h3 {\n            font-weight: normal;\n        }\n\n        .body h3 i {\n            font-weight: 700;\n        }\n    </style>\n</head>\n<body>\n<div class=\"body\">\n    <h3>" + body["name"] + " <i>" + body["email"] + "</i></h3>\n    <h5>Message:</h5>\n    <p>" + body["message"] + "</p>\n</div>\n</body>\n</html>";
+    return "<!doctype html>\n\t<html lang=\"en\">\n\t<head>\n    <style>\n        body, html {\n            margin: 0;\n            padding: 0;\n            font-family: Helvetica, sans-serif;\n\t\t\twidth: 500px;\n        }\n        a {\n        \ttext-decoration: none;\n        \tcolor: #232323;\n        }\n        .body {\n            margin: 10px;\n            padding: 10px;\n            background-color: #f5f5f5f5;\n            border: 2px solid #aaaaaa;\n            border-radius: 7px;\n        }\n        .body p {\n            width: 500px;\n        }\n        .body h3 {\n            font-weight: normal;\n        }\n\t\t.body h2 {\n            font-weight: 700;\n\t\t}\n        .body h3 i {\n        \tfont-style: italic;\n        }\n    </style>\n</head>\n<body>\n<div class=\"body\">\n    <h2>" + body["name"] + "<h3>\n    <h3><a href=\"mailto:" + body["email"] + "?body=Response\"><i>" + body["email"] + "</i></a>\t</h3>\n    <hr>\n    <h5>Message:</h5>\n    <p>" + body["message"] + "</p>\n</div>\n</body>\n</html>";
 }

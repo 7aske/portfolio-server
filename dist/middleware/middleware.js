@@ -10,7 +10,6 @@ function isPathValid(path) {
     for (var i = 0; i < invalidPaths.length; i++) {
         var p = invalidPaths[i];
         if (path.indexOf(p) != -1) {
-            console.log(path, "mw");
             return false;
         }
     }

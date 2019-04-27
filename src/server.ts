@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { middleware } from "./middleware/middleware";
 import { resolve } from "path";
-import { mailer } from "./middleware/mailer";
+import { mailer, resetIps } from "./middleware/mailer";
 import { bodyparser } from "./middleware/bodyparser";
 import { notFound } from "./middleware/notFound";
 import { update } from "./updater/updater";
@@ -15,15 +15,17 @@ if (env.error){
 }
 const server = express();
 
+export const MAILER_TIMEOUT = 60 * 60 * 1000;
 export const PORT: number = parseInt(process.env.PORT) || 3000;
 export const REPO_DIR = process.env.REPO_DIR || "dist/static";
 export const REPO_NAME = process.env.REPO_NAME || "portfolio";
 
-
+setInterval(resetIps, MAILER_TIMEOUT);
 
 server.use(bodyparser);
 server.use(middleware);
 server.use("/api/mailer", mailer);
+server.use("/api", express.static(`${REPO_DIR}/${REPO_NAME}`));
 server.use(express.static(`${REPO_DIR}/${REPO_NAME}`));
 server.use(notFound);
 

@@ -11,7 +11,6 @@ function isPathValid(path: string): boolean {
 	for (let i = 0; i < invalidPaths.length; i++) {
 		const p = invalidPaths[i];
 		if (path.indexOf(p) != -1) {
-			console.log(path, "mw");
 			return false;
 		}
 	}
@@ -23,6 +22,5 @@ export function middleware(req: Request, res: Response, next: NextFunction) {
 		next();
 	} else {
 		res.status(404).sendFile(resolve(process.cwd(), "dist/static/pages/404.html"));
-
 	}
 }
