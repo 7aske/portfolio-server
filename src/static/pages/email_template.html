@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Helvetica, sans-serif;
+            width: 500px;
+        }
+        a {
+            text-decoration: none;
+            color: #232323;
+        }
+        .body {
+            margin: 10px;
+            padding: 10px;
+            background-color: #f5f5f5f5;
+            border: 2px solid #aaaaaa;
+            border-radius: 7px;
+        }
+        .body p {
+            width: 500px;
+        }
+        .body h3 {
+            font-weight: normal;
+        }
+        .body h2 {
+            font-weight: 700;
+        }
+        .body h3 i {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+<div class="body">
+    <h2>${body['name']}<h3>
+        <h3><a href="mailto:${body['email']}?body=Response"><i>${body['email']}</i></a></h3>
+        <hr>
+        <h5>Message:</h5>
+        <p>${body['message']}</p>
+</div>
+</body>
+</html>
